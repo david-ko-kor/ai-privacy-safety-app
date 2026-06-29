@@ -136,8 +136,20 @@
   }
 
   function exampleForInfoType(infoType) {
-    const item = infoTypes.find((type) => type.title === infoType);
+    const title = String(infoType || "").split(":")[0].trim();
+    const item = infoTypes.find((type) => type.title === title);
     return item ? maskedExample(item) : "";
+  }
+
+  function selectedInfoText(item) {
+    return `${item.title}: ${maskedExample(item)}`;
+  }
+
+  function teacherInfoText(infoType) {
+    const text = String(infoType || "").trim();
+    if (text.includes(":")) return text;
+    const example = exampleForInfoType(text);
+    return example ? `${text}: ${example}` : text;
   }
 
   function updatePreview() {
@@ -155,7 +167,7 @@
       ? `${selectedStudent}번 학생`
       : "학생 번호";
     const infoText = selectedInfo
-      ? `${selectedInfo.title}: ${maskedExample(selectedInfo)}`
+      ? selectedInfoText(selectedInfo)
       : "보낼 정보";
     const photoHelp =
       selectedInfo?.id === "photo"
@@ -221,7 +233,7 @@
 
     const payload = {
       student_no: selectedStudent,
-      info_type: selectedInfo.id === "photo" ? "사진" : selectedInfo.title,
+      info_type: selectedInfoText(selectedInfo),
       risk_level: selectedInfo.risk,
     };
 
@@ -272,11 +284,8 @@
           `;
         }
         const safeClass = log.risk_level === "안전" ? "safe" : "done";
-        const selectedExample = exampleForInfoType(log.info_type);
-        const selectedText = selectedExample
-          ? `${log.info_type}: ${selectedExample}`
-          : log.info_type;
-        const photo = log.info_type === "사진"
+        const selectedText = teacherInfoText(log.info_type);
+        const photo = String(log.info_type || "").startsWith("사진")
           ? `<img class="teacher-photo" src="${samplePhoto()}" alt="예시 사진">`
           : "";
         return `
