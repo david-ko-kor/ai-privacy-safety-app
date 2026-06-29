@@ -1,11 +1,13 @@
 <!doctype html>
 <html lang="ko">
+
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>AI 개인정보 안전 체험</title>
   <link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
   <header>
     <div>
@@ -31,7 +33,35 @@
       <section class="panel">
         <h3>2. AI에게 보낼 예시를 골라요</h3>
         <p class="hint">진짜 이름, 전화번호, 주소, 학교 이름은 입력하지 않아요.</p>
-        <div id="infoGrid" class="info-grid" aria-label="정보 종류 선택"></div>
+        <div id="infoGrid" class="info-grid" aria-label="정보 종류 선택">
+          <button class="info-card risk" type="button" data-info="name" data-title="이름" data-example="고래미" data-risk="위험">
+            <strong>이름</strong>
+            <span>예시: 고래미</span>
+          </button>
+          <button class="info-card risk" type="button" data-info="phone" data-title="전화번호" data-example="010-1234-5678" data-risk="위험">
+            <strong>전화번호</strong>
+            <span>예시: 010-1234-5678</span>
+          </button>
+          <button class="info-card risk" type="button" data-info="address" data-title="주소" data-example="원주시 무실동" data-risk="위험">
+            <strong>주소</strong>
+            <span>예시: 원주시 무실동</span>
+          </button>
+          <button class="info-card risk" type="button" data-info="school" data-title="학교" data-example="우리학교 이름" data-risk="위험">
+            <strong>학교</strong>
+            <span>예시: 우리학교 이름</span>
+          </button>
+          <button class="info-card risk" type="button" data-info="photo" data-title="사진" data-example="예시 사진" data-risk="위험">
+            <img class="info-card-image"
+              src="asset/sample_0-2.png"
+              alt="예시 사진">
+            <strong>사진</strong>
+            <span>예시: 예시 사진</span>
+          </button>
+          <button class="info-card safe" type="button" data-info="safe" data-title="안전한 문장" data-example="저는 고등학생입니다" data-risk="안전">
+            <strong>안전한 문장</strong>
+            <span>예시: 저는 고등학생입니다</span>
+          </button>
+        </div>
       </section>
 
       <section class="panel preview-panel">
@@ -82,4 +112,5 @@
   <script src="supabase-config.js"></script>
   <script src="app.js"></script>
 </body>
+
 </html>
