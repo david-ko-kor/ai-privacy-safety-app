@@ -3,12 +3,8 @@
 
   const $ = (id) => document.getElementById(id);
   const config = window.SUPABASE_CONFIG || {};
-  const hasSupabaseConfig = Boolean(config.url && config.anonKey);
-  const supabaseUrl = normalizeSupabaseUrl(config.url || "");
-  const db = hasSupabaseConfig && window.supabase
-    ? window.supabase.createClient(supabaseUrl, config.anonKey)
-    : null;
-  const tableName = "privacy_logs";
+  const useServerApi = config.useServerApi !== false && location.protocol !== "file:";
+  let teacherPassword = "";
 
   let selectedStudent = null;
   let selectedInfo = null;
@@ -21,15 +17,6 @@
     { id: "photo", title: "얼굴 사진", example: "내 얼굴 사진", risk: "위험", tone: "risk" },
     { id: "safe", title: "안전한 문장", example: "저는 고등학생입니다", risk: "안전", tone: "safe" }
   ];
-
-  function normalizeSupabaseUrl(url) {
-    try {
-      const parsed = new URL(url);
-      return parsed.origin;
-    } catch (error) {
-      return url;
-    }
-  }
 
   function localLogs() {
     try {
@@ -112,9 +99,13 @@
   }
 
   async function insertLog(payload) {
-    if (db) {
-      const { error } = await db.from(tableName).insert(payload);
-      if (error) throw error;
+    if (useServerApi) {
+      const response = await fetch("/api/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      if (!response.ok) throw new Error("submit_failed");
       return;
     }
 
@@ -124,21 +115,24 @@
   }
 
   async function fetchLogs() {
-    if (db) {
-      const { data, error } = await db
-        .from(tableName)
-        .select("*")
-        .order("created_at", { ascending: false });
-      if (error) throw error;
-      return data || [];
+    if (useServerApi) {
+      const response = await fetch("/api/logs", {
+        headers: { "x-teacher-password": teacherPassword }
+      });
+      if (!response.ok) throw new Error(response.status === 401 ? "wrong_password" : "logs_failed");
+      const body = await response.json();
+      return body.data || [];
     }
     return localLogs().sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
   }
 
   async function clearLogs() {
-    if (db) {
-      const { error } = await db.from(tableName).delete().neq("id", "00000000-0000-0000-0000-000000000000");
-      if (error) throw error;
+    if (useServerApi) {
+      const response = await fetch("/api/clear", {
+        method: "POST",
+        headers: { "x-teacher-password": teacherPassword }
+      });
+      if (!response.ok) throw new Error(response.status === 401 ? "wrong_password" : "clear_failed");
       return;
     }
     saveLocalLogs([]);
@@ -178,7 +172,7 @@
   }
 
   async function renderTeacherDashboard() {
-    $("dashboardNotice").textContent = db
+    $("dashboardNotice").textContent = useServerApi
       ? "Supabase에 저장된 참여 현황입니다."
       : "현재는 데모 모드입니다. 이 브라우저에만 기록됩니다.";
 
@@ -207,7 +201,9 @@
         `;
       }).join("");
     } catch (error) {
-      $("dashboardNotice").textContent = "현황을 불러오지 못했어요. Supabase 설정을 확인해 주세요.";
+      $("dashboardNotice").textContent = error.message === "wrong_password"
+        ? "비밀번호가 달라요."
+        : "현황을 불러오지 못했어요. Vercel 환경변수와 Supabase 설정을 확인해 주세요.";
       console.error(error);
     }
   }
@@ -228,14 +224,11 @@
   $("backStudentButton").onclick = showStudent;
   $("sendButton").onclick = sendPracticeLog;
   $("refreshButton").onclick = renderTeacherDashboard;
-  $("teacherLoginButton").onclick = () => {
-    if ($("teacherPassword").value === (config.teacherPassword || "1234")) {
-      $("teacherLogin").classList.add("hidden");
-      $("teacherDashboard").classList.remove("hidden");
-      renderTeacherDashboard();
-    } else {
-      alert("비밀번호가 달라요.");
-    }
+  $("teacherLoginButton").onclick = async () => {
+    teacherPassword = $("teacherPassword").value;
+    $("teacherLogin").classList.add("hidden");
+    $("teacherDashboard").classList.remove("hidden");
+    await renderTeacherDashboard();
   };
   $("clearButton").onclick = async () => {
     if (!confirm("수업 기록을 모두 지울까요?")) return;

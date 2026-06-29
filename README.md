@@ -25,37 +25,29 @@ create table privacy_logs (
 );
 
 alter table privacy_logs enable row level security;
-
-create policy "allow classroom insert"
-on privacy_logs
-for insert
-to anon
-with check (student_no between 1 and 12);
-
-create policy "allow classroom read"
-on privacy_logs
-for select
-to anon
-using (true);
-
-create policy "allow classroom delete"
-on privacy_logs
-for delete
-to anon
-using (true);
 ```
 
-## Supabase 연결
+데이터 읽기/쓰기/삭제는 Vercel 서버 함수가 `service role` 권한으로 처리합니다. 브라우저에는 Supabase 비밀키를 넣지 않습니다.
 
-`supabase-config.js` 파일에 Supabase 값을 넣습니다.
+이미 공개 정책을 만들었다면 SQL Editor에서 아래를 실행해 지워도 됩니다.
 
-```js
-window.SUPABASE_CONFIG = {
-  url: "https://프로젝트아이디.supabase.co",
-  anonKey: "Supabase anon public key",
-  teacherPassword: "1234"
-};
+```sql
+drop policy if exists "allow classroom insert" on privacy_logs;
+drop policy if exists "allow classroom read" on privacy_logs;
+drop policy if exists "allow classroom delete" on privacy_logs;
 ```
+
+## Vercel 환경변수
+
+Vercel 프로젝트의 `Settings` → `Environment Variables`에 아래 3개를 넣습니다.
+
+```text
+SUPABASE_URL=https://프로젝트아이디.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=Supabase Secret key 또는 service_role key
+TEACHER_PASSWORD=선생님 화면 비밀번호
+```
+
+주의: `SUPABASE_SERVICE_ROLE_KEY`는 Vercel 환경변수에만 넣습니다. `supabase-config.js`나 브라우저 코드에 넣으면 안 됩니다.
 
 ## Vercel 배포
 
@@ -67,6 +59,7 @@ window.SUPABASE_CONFIG = {
 - `styles.css`
 - `app.js`
 - `supabase-config.js`
+- `api/` 폴더
 
 ## 주의
 
