@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AI 개인정보 안전 체험</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header>
+    <div>
+      <p class="eyebrow">생성형 AI 안전 수업</p>
+      <h1>AI 개인정보 안전 체험</h1>
+    </div>
+    <button id="teacherOpenButton" class="ghost" type="button">선생님 화면</button>
+  </header>
+
+  <main>
+    <section id="studentScreen" class="screen">
+      <div class="hero">
+        <span class="badge">학생 활동</span>
+        <h2>AI에게 어떤 정보를 보내면 위험할까요?</h2>
+        <p>진짜 개인정보는 쓰지 않아요. 예시 버튼을 눌러서 안전하게 체험해요.</p>
+      </div>
+
+      <section class="panel">
+        <h3>1. 내 번호를 골라요</h3>
+        <div id="studentGrid" class="number-grid" aria-label="학생 번호 선택"></div>
+      </section>
+
+      <section class="panel">
+        <h3>2. AI에게 보낼 예시를 골라요</h3>
+        <p class="hint">진짜 이름, 전화번호, 주소, 학교 이름은 입력하지 않아요.</p>
+        <div id="infoGrid" class="info-grid" aria-label="정보 종류 선택"></div>
+      </section>
+
+      <section class="panel preview-panel">
+        <h3>3. 보내기 전에 확인해요</h3>
+        <div id="studentPreview" class="preview empty">아직 선택하지 않았어요.</div>
+        <button id="sendButton" class="primary" type="button" disabled>AI에게 보내기 체험</button>
+        <p id="studentStatus" class="status" aria-live="assertive"></p>
+      </section>
+
+      <section id="studentResult" class="result hidden" aria-live="polite">
+        <h3>보낸 정보가 선생님 화면에 표시될 수 있어요</h3>
+        <p id="studentResultText"></p>
+        <div class="safe-sentence">
+          <strong>안전한 문장</strong>
+          <p>저는 고등학생입니다. 좋아하는 것과 하고 싶은 일은 말해도 되지만, 이름·주소·전화번호는 쓰지 않습니다.</p>
+        </div>
+      </section>
+    </section>
+
+    <section id="teacherScreen" class="screen hidden">
+      <div class="hero teacher-hero">
+        <span class="badge teacher">선생님 화면</span>
+        <h2>12명 참여 현황</h2>
+        <p>실제 개인정보는 저장하지 않고, 학생 번호와 선택한 정보 종류만 표시합니다.</p>
+      </div>
+
+      <section id="teacherLogin" class="panel">
+        <h3>선생님 비밀번호</h3>
+        <div class="login-row">
+          <input id="teacherPassword" type="password" placeholder="비밀번호 입력" autocomplete="off">
+          <button id="teacherLoginButton" class="primary teacher-bg" type="button">열기</button>
+        </div>
+        <p class="hint">기본 비밀번호는 <strong>1234</strong>입니다. 배포 전에 바꿔도 됩니다.</p>
+      </section>
+
+      <section id="teacherDashboard" class="hidden">
+        <div class="dashboard-actions">
+          <button id="refreshButton" class="primary teacher-bg" type="button">새로고침</button>
+          <button id="clearButton" class="danger" type="button">수업 기록 지우기</button>
+          <button id="backStudentButton" class="ghost" type="button">학생 화면으로</button>
+        </div>
+        <div id="dashboardNotice" class="notice"></div>
+        <div id="teacherGrid" class="teacher-grid" aria-live="polite"></div>
+      </section>
+    </section>
+  </main>
+
+  <script src="supabase-config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="app.js"></script>
+</body>
+</html>
